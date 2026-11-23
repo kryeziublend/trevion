@@ -20,8 +20,318 @@ a{color:#38d9ff}a:hover{color:#8ae9ff}
 @media (prefers-reduced-motion: reduce){.tv-waves,.tv-traffic{animation:none}}
 </style>
 <style>html{scroll-behavior:smooth}section{scroll-margin-top:84px}input:focus,select:focus,textarea:focus{outline:2px solid #38d9ff;outline-offset:1px}</style>
+<style>
+#tv-intro{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;box-sizing:border-box;padding:16px clamp(16px,3vw,32px) 20px;background:radial-gradient(ellipse at 50% 62%,#0b2a48 0%,#050c18 66%);color:#e6f1fb;font-family:Inter,system-ui,sans-serif;transition:opacity .6s ease}
+#tv-intro[hidden]{display:none}
+#tv-intro.ti-out{opacity:0;pointer-events:none}
+.ti-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ti-word{font-family:Michroma,sans-serif;font-size:16px;letter-spacing:.06em;color:#fff}
+.ti-skip{min-height:44px;padding:10px 18px;border-radius:999px;border:1px solid rgba(56,217,255,.35);background:none;color:#cde3f2;font:500 14px Inter,system-ui,sans-serif;cursor:pointer}
+.ti-skip:hover{border-color:#38d9ff;color:#fff}
+.ti-head{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.ti-mark{width:40px;height:46px;filter:drop-shadow(0 0 6px rgba(30,200,240,.35))}
+.ti-d{fill:#15304d;transition:fill .4s}
+.ti-d.on{fill:url(#tiG)}
+.ti-link{stroke:#15304d;transition:stroke .4s}
+.ti-link.on{stroke:url(#tiG)}
+.ti-head h1{margin:0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(24px,3.6vw,40px);line-height:1.15;color:#fff}
+.ti-head p{margin:0;font-size:clamp(14px,1.6vw,17px);color:#9dbbd1}
+.ti-stage{position:relative;flex:1 1 auto;min-height:180px}
+#ti-canvas{position:absolute;inset:0;width:100%;height:100%}
+.ti-final{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;background:radial-gradient(ellipse at center,rgba(5,12,24,.88) 0%,rgba(5,12,24,.55) 45%,rgba(5,12,24,0) 75%);animation:tiIn .6s ease}
+.ti-final[hidden]{display:none}
+.ti-final h2{margin:0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(26px,4vw,46px);color:#fff}
+.ti-final p{margin:0;font-size:clamp(15px,1.7vw,18px);color:#b9d3e6}
+.ti-time{font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#7fe6ff}
+.ti-enter{min-height:48px;margin-top:8px;padding:14px 28px;border:0;border-radius:999px;background:#1ec8f0;color:#04111f;font:600 16px Inter,system-ui,sans-serif;cursor:pointer}
+.ti-enter:hover{background:#5fd8f5}
+.ti-caption{min-height:24px;margin:8px 0 12px;text-align:center;font-size:15px;color:#b9d3e6}
+.ti-btns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;width:100%;max-width:880px;margin:0 auto}
+.ti-btn{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:44px;padding:14px 10px;border:1px solid rgba(56,217,255,.25);border-radius:14px;background:#0a1a2e;color:#e6f1fb;font-family:inherit;cursor:pointer;transition:border-color .2s,background .2s,transform .15s}
+.ti-btn:hover{border-color:#38d9ff;transform:translateY(-2px)}
+.ti-btn:not(.on){animation:tiPulse 2.4s ease-in-out infinite}
+.ti-btn.on{border-color:#38d9ff;background:rgba(30,200,240,.14);cursor:default;transform:none}
+.ti-btn svg{width:26px;height:26px}
+.ti-name{font-size:15px;font-weight:600}
+.ti-verb{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#7fa6c2}
+.ti-btn.on .ti-verb{color:#7fe6ff}
+.ti-skip:focus-visible,.ti-btn:focus-visible,.ti-enter:focus-visible,.ti-replay:focus-visible{outline:2px solid #7fe6ff;outline-offset:2px}
+.ti-replay{padding:0;border:0;background:none;color:#8fb3cc;font:inherit;text-decoration:underline;cursor:pointer}
+.ti-replay:hover{color:#38d9ff}
+@keyframes tiPulse{0%,100%{box-shadow:0 0 0 0 rgba(30,200,240,0)}50%{box-shadow:0 0 0 6px rgba(30,200,240,.14)}}
+@keyframes tiIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@media (max-width:640px){.ti-btns{grid-template-columns:repeat(2,minmax(0,1fr))}.ti-btn{padding:10px 8px}}
+@media (prefers-reduced-motion:reduce){#tv-intro{transition:none}.ti-btn:not(.on){animation:none}.ti-final{animation:none}}
+</style>
 </head>
 <body>
+<div id="tv-intro" role="dialog" aria-modal="true" aria-labelledby="ti-title" hidden>
+<div class="ti-top">
+<span class="ti-word">TREVION</span>
+<button type="button" class="ti-skip" id="ti-skip">Skip intro →</button>
+</div>
+<div class="ti-head">
+<svg class="ti-mark" viewBox="0 0 48 56" aria-hidden="true"><defs><linearGradient id="tiG" gradientUnits="userSpaceOnUse" x1="40" y1="0" x2="14" y2="56"><stop offset="0" stop-color="#4fdcff"/><stop offset="0.55" stop-color="#2aa6f5"/><stop offset="1" stop-color="#1a5fe8"/></linearGradient></defs><line class="ti-link" x1="36" y1="9" x2="36" y2="47" stroke-width="1.6"/><rect class="ti-d" data-sys="geo" x="2.4" y="22.4" width="11.2" height="11.2" rx="1.8" transform="rotate(45 8 28)"/><rect class="ti-d" data-sys="gis" x="16.4" y="12.9" width="11.2" height="11.2" rx="1.8" transform="rotate(45 22 18.5)"/><rect class="ti-d" data-sys="ele" x="16.4" y="31.9" width="11.2" height="11.2" rx="1.8" transform="rotate(45 22 37.5)"/><rect class="ti-d" data-sys="cyb" x="30.4" y="22.4" width="11.2" height="11.2" rx="1.8" transform="rotate(45 36 28)"/><rect class="ti-d" data-sys="all" x="30.4" y="3.4" width="11.2" height="11.2" rx="1.8" transform="rotate(45 36 9)"/><rect class="ti-d" data-sys="all" x="30.4" y="41.4" width="11.2" height="11.2" rx="1.8" transform="rotate(45 36 47)"/></svg>
+<h1 id="ti-title">Can you bring the city online?</h1>
+<p>Tap the four systems. Each one is a discipline of our team.</p>
+</div>
+<div class="ti-stage">
+<canvas id="ti-canvas" aria-hidden="true"></canvas>
+<div class="ti-final" id="ti-final" hidden>
+<div class="ti-time" id="ti-time"></div>
+<h2>Four disciplines. One team.</h2>
+<p>That’s Trevion: we measure, map, power and protect.</p>
+<button type="button" class="ti-enter" id="ti-enter">Enter Trevion →</button>
+</div>
+</div>
+<p class="ti-caption" id="ti-caption" role="status" aria-live="polite">0 / 4 systems online</p>
+<div class="ti-btns">
+<button type="button" class="ti-btn" data-sys="geo" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="#38d9ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="6" r="3"/><path d="M12 9v3M12 12l-6 9M12 12l6 9M12 12v9"/></svg><span class="ti-name">Geodesy</span><span class="ti-verb">Measure</span></button>
+<button type="button" class="ti-btn" data-sys="gis" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="#38d9ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/><path d="M3 17l9 5 9-5" opacity="0.6"/></svg><span class="ti-name">GIS</span><span class="ti-verb">Map</span></button>
+<button type="button" class="ti-btn" data-sys="ele" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="#38d9ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg><span class="ti-name">Electrical</span><span class="ti-verb">Power</span></button>
+<button type="button" class="ti-btn" data-sys="cyb" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="#38d9ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11"/></svg><span class="ti-name">Cybersecurity</span><span class="ti-verb">Protect</span></button>
+</div>
+</div>
+<script>
+(function () {
+  var intro = document.getElementById('tv-intro');
+  if (!intro) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function seen() { try { return sessionStorage.getItem('tvIntro') === '1'; } catch (e) { return false; } }
+  function markSeen() { try { sessionStorage.setItem('tvIntro', '1'); } catch (e) {} }
+
+  var canvas = document.getElementById('ti-canvas');
+  var ctx = canvas.getContext('2d');
+  var cap = document.getElementById('ti-caption');
+  var fin = document.getElementById('ti-final');
+  var timeEl = document.getElementById('ti-time');
+  var btns = Array.prototype.slice.call(intro.querySelectorAll('.ti-btn'));
+  var dias = Array.prototype.slice.call(intro.querySelectorAll('.ti-d'));
+  var link = intro.querySelector('.ti-link');
+
+  var seed = 11;
+  function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+  var R = 7, blds = [];
+  for (var i = -R; i <= R; i++) for (var j = -R; j <= R; j++) {
+    if (i % 3 === 0 || j % 3 === 0) continue;
+    var d = Math.hypot(i - 0.5, j - 0.5);
+    if (d > R + 0.6) continue;
+    blds.push({ i: i, j: j, d: d, h: (0.4 + rnd() * 0.75) * Math.exp(-d / 3.3) + 0.05 + rnd() * 0.06, warm: rnd() > 0.55 });
+  }
+  blds.sort(function (p, q) { return (p.i + p.j) - (q.i + q.j); });
+  var streets = [-6, -3, 0, 3, 6];
+
+  var order = ['geo', 'gis', 'ele', 'cyb'];
+  var sys, count, openTime, lastTap, finished, running = false;
+  var captions = {
+    geo: 'Geodesy: every project starts with accurate measurement.',
+    gis: 'GIS: data becomes maps you can use.',
+    ele: 'Electrical: power runs through every street.',
+    cyb: 'Cybersecurity: every system stays protected.'
+  };
+
+  var W, H, a, b, cx, cy, hmax;
+  function resize() {
+    var r = canvas.getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height;
+    canvas.width = Math.max(1, Math.round(W * dpr)); canvas.height = Math.max(1, Math.round(H * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    hmax = H * 0.4;
+    a = Math.min(W * 0.94 / (4 * R + 2), (H - hmax - 8) / ((2 * R + 2) * 0.58));
+    b = a * 0.58; cx = W / 2; cy = H - (2 * R + 2) * b - 6;
+  }
+  function P(i, j, h) { return [cx + (i - j) * a, cy + (i + j) * b - (h || 0)]; }
+  function cl(t) { return Math.max(0, Math.min(1, t)); }
+  function ease(t) { t = cl(t); return 1 - Math.pow(1 - t, 3); }
+  function seg(p, q) { ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); }
+  function poly(pts) { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (var k = 1; k < pts.length; k++) ctx.lineTo(pts[k][0], pts[k][1]); ctx.closePath(); }
+
+  function draw(now) {
+    if (!running) return;
+    var time = now / 1000;
+    order.forEach(function (k) { var s = sys[k]; if (s.t >= 0) s.p = reduce ? 1 : cl((now - s.t) / 1500); });
+    var g = sys.geo.p, m = sys.gis.p, e = sys.ele.p, c = sys.cyb.p;
+    ctx.clearRect(0, 0, W, H);
+    ctx.setLineDash([]); ctx.shadowBlur = 0;
+
+    // ground plate
+    poly([P(-R, -R), P(R + 1, -R), P(R + 1, R + 1), P(-R, R + 1)]);
+    ctx.fillStyle = 'rgba(10, 36, 64, 0.35)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(56, 217, 255, 0.28)'; ctx.lineWidth = 1; ctx.stroke();
+
+    // GEODESY: survey grid drawn line by line + total station beam
+    if (g > 0) {
+      ctx.strokeStyle = 'rgba(56, 217, 255, 0.3)'; ctx.lineWidth = 0.7;
+      for (var k = -R; k <= R + 1; k++) {
+        var lp = ease(g * 1.7 - ((k + R) / (2 * R + 1)) * 0.7);
+        if (lp <= 0) continue;
+        seg(P(k, -R), P(k, -R + (2 * R + 1) * lp));
+        seg(P(-R, k), P(-R + (2 * R + 1) * lp, k));
+      }
+      var st = P(-R, R + 1);
+      ctx.strokeStyle = '#ffb27a'; ctx.lineWidth = 1.2;
+      seg([st[0] - 6, st[1] + 10], [st[0], st[1] - 6]); seg([st[0] + 6, st[1] + 10], [st[0], st[1] - 6]);
+      ctx.fillStyle = '#ffb27a'; ctx.beginPath(); ctx.arc(st[0], st[1] - 8, 3, 0, Math.PI * 2); ctx.fill();
+      if (g < 1) {
+        var tg = P(-R + (2 * R + 1) * g, -R);
+        ctx.strokeStyle = 'rgba(255, 157, 92, 0.85)'; ctx.lineWidth = 1.2; ctx.shadowColor = '#ff9d5c'; ctx.shadowBlur = 8;
+        seg([st[0], st[1] - 8], tg); ctx.shadowBlur = 0;
+        ctx.fillStyle = '#ffd2b0'; ctx.beginPath(); ctx.arc(tg[0], tg[1], 3, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    // ELECTRICAL: glowing streets + traffic
+    if (e > 0) {
+      ctx.lineCap = 'round'; ctx.shadowColor = '#1ec8f0'; ctx.shadowBlur = 10;
+      ctx.strokeStyle = 'rgba(95, 227, 255, ' + (0.9 * e) + ')'; ctx.lineWidth = 1.6;
+      streets.forEach(function (s, n) {
+        var lp = ease(e * 1.6 - n * 0.12) * (2 * R + 1);
+        seg(P(s + 0.5, -R), P(s + 0.5, -R + lp));
+        seg(P(-R, s + 0.5), P(-R + lp, s + 0.5));
+      });
+      ctx.fillStyle = 'rgba(235, 251, 255, ' + e + ')';
+      streets.forEach(function (s, n) {
+        for (var q = 0; q < 2; q++) {
+          var f = ((time * 0.11 + n * 0.37 + q * 0.5) % 1) * (2 * R + 1);
+          var p1 = P(s + 0.5, -R + f), p2 = P(R + 1 - f, s + 0.5);
+          ctx.beginPath(); ctx.arc(p1[0], p1[1], 1.8, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(p2[0], p2[1], 1.8, 0, Math.PI * 2); ctx.fill();
+        }
+      });
+      ctx.shadowBlur = 0;
+    }
+
+    // GIS: buildings rise from the data
+    var o = 0.1, sz = 0.8;
+    blds.forEach(function (bl) {
+      var rise = m > 0 ? ease(m * 1.8 - (bl.d / R) * 0.8) : 0;
+      var h = bl.h * hmax * rise;
+      var c0 = [bl.i + o, bl.j + o], c1 = [bl.i + o + sz, bl.j + o], c2 = [bl.i + o + sz, bl.j + o + sz], c3 = [bl.i + o, bl.j + o + sz];
+      if (h < 0.6) {
+        poly([P(c0[0], c0[1]), P(c1[0], c1[1]), P(c2[0], c2[1]), P(c3[0], c3[1])]);
+        ctx.strokeStyle = 'rgba(56, 217, 255, ' + (0.12 + 0.35 * g) + ')'; ctx.lineWidth = 0.8; ctx.stroke();
+        return;
+      }
+      var T = [P(c0[0], c0[1], h), P(c1[0], c1[1], h), P(c2[0], c2[1], h), P(c3[0], c3[1], h)];
+      var B = [P(c0[0], c0[1]), P(c1[0], c1[1]), P(c2[0], c2[1]), P(c3[0], c3[1])];
+      poly([T[3], T[2], B[2], B[3]]); ctx.fillStyle = '#061627'; ctx.fill();
+      poly([T[1], T[2], B[2], B[1]]); ctx.fillStyle = '#0a2440'; ctx.fill();
+      poly(T); ctx.fillStyle = '#0f4168'; ctx.fill();
+      if (e > 0 && h > 14) {
+        ctx.setLineDash([2, 2.5]); ctx.lineWidth = 1;
+        ctx.strokeStyle = bl.warm ? 'rgba(255, 214, 150, ' + (0.6 * e) + ')' : 'rgba(127, 230, 255, ' + (0.6 * e) + ')';
+        for (var y = 7; y < h - 4; y += 7) {
+          var w1 = P(c3[0], c3[1], y), w2 = P(c2[0], c2[1], y), w3 = P(c1[0], c1[1], y);
+          ctx.beginPath(); ctx.moveTo(w1[0], w1[1]); ctx.lineTo(w2[0], w2[1]); ctx.lineTo(w3[0], w3[1]); ctx.stroke();
+        }
+        ctx.setLineDash([]);
+      }
+      ctx.strokeStyle = 'rgba(56, 217, 255, 0.8)'; ctx.lineWidth = 0.9;
+      poly(T); ctx.stroke(); seg(T[1], B[1]); seg(T[2], B[2]); seg(T[3], B[3]);
+      if (bl.h > 0.8 && rise > 0.95) {
+        var tp = P(bl.i + 0.5, bl.j + 0.5, h);
+        ctx.strokeStyle = '#7ee8ff'; seg(tp, [tp[0], tp[1] - 12]);
+        ctx.fillStyle = 'rgba(255, 120, 110, ' + (0.5 + 0.5 * Math.sin(time * 4)) + ')';
+        ctx.beginPath(); ctx.arc(tp[0], tp[1] - 12, 2, 0, Math.PI * 2); ctx.fill();
+      }
+    });
+
+    // CYBERSECURITY: geodesic shield dome
+    if (c > 0) {
+      var ctr = P(0.5, 0.5), rx = (R + 1) * a * 1.42, ry = (R + 1) * b * 1.42, dh = Math.min(hmax * 1.1, ctr[1] - 26);
+      ctx.save();
+      ctx.beginPath(); ctx.ellipse(ctr[0], ctr[1], rx, dh, 0, Math.PI, Math.PI * 2); ctx.ellipse(ctr[0], ctr[1], rx, ry, 0, 0, Math.PI);
+      ctx.fillStyle = 'rgba(30, 200, 240, ' + (0.07 * c) + ')'; ctx.fill();
+      ctx.strokeStyle = 'rgba(95, 227, 255, ' + (0.75 * c) + ')'; ctx.lineWidth = 1.2; ctx.shadowColor = '#1ec8f0'; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.ellipse(ctr[0], ctr[1], rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.shadowBlur = 0; ctx.lineWidth = 0.9;
+      for (var n = 0; n < 5; n++) {
+        var mp = ease(c * 1.6 - n * 0.12);
+        if (mp <= 0) continue;
+        var mr = rx * Math.cos(n * Math.PI / 10);
+        ctx.strokeStyle = 'rgba(95, 227, 255, ' + (0.55 * c) + ')';
+        ctx.beginPath(); ctx.ellipse(ctr[0], ctr[1], Math.max(mr, 0.1), dh, 0, Math.PI, Math.PI + Math.PI * mp); ctx.stroke();
+      }
+      [0.35, 0.65, 0.88].forEach(function (f, n) {
+        var pp = ease(c * 1.6 - 0.3 - n * 0.12);
+        if (pp <= 0) return;
+        var k2 = Math.sqrt(1 - f * f);
+        ctx.strokeStyle = 'rgba(95, 227, 255, ' + (0.4 * pp) + ')';
+        ctx.beginPath(); ctx.ellipse(ctr[0], ctr[1] - dh * f, rx * k2, ry * k2, 0, 0, Math.PI * 2); ctx.stroke();
+      });
+      if (c >= 1 && !reduce) {
+        var sw = rx * Math.cos(time * 1.3);
+        ctx.strokeStyle = 'rgba(200, 248, 255, 0.35)'; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.ellipse(ctr[0], ctr[1], Math.max(Math.abs(sw), 0.1), dh, 0, Math.PI, Math.PI * 2); ctx.stroke();
+      }
+      var lx = ctr[0], ly = ctr[1] - dh - 14;
+      ctx.globalAlpha = c; ctx.strokeStyle = '#bdf4ff'; ctx.fillStyle = '#0a2440'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(lx, ly - 4, 4.5, Math.PI, 0); ctx.stroke();
+      ctx.fillRect(lx - 7, ly - 4, 14, 11); ctx.strokeRect(lx - 7, ly - 4, 14, 11);
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    if (count === 4 && !finished && order.every(function (k) { return sys[k].p >= 1; })) finish();
+    requestAnimationFrame(draw);
+  }
+
+  function finish() {
+    finished = true;
+    dias.forEach(function (dd) { dd.classList.add('on'); });
+    link.classList.add('on');
+    timeEl.textContent = 'City online in ' + ((lastTap - openTime) / 1000).toFixed(1) + ' s';
+    fin.hidden = false;
+    cap.textContent = '4 / 4 systems online';
+    document.getElementById('ti-enter').focus();
+  }
+
+  function open() {
+    sys = { geo: { p: 0, t: -1 }, gis: { p: 0, t: -1 }, ele: { p: 0, t: -1 }, cyb: { p: 0, t: -1 } };
+    count = 0; finished = false;
+    btns.forEach(function (bt) { bt.classList.remove('on'); bt.setAttribute('aria-pressed', 'false'); });
+    dias.forEach(function (dd) { dd.classList.remove('on'); });
+    link.classList.remove('on');
+    fin.hidden = true; cap.textContent = '0 / 4 systems online';
+    intro.hidden = false; intro.classList.remove('ti-out');
+    document.documentElement.style.overflow = 'hidden';
+    resize();
+    openTime = performance.now();
+    if (!running) { running = true; requestAnimationFrame(draw); }
+    btns[0].focus();
+  }
+
+  function close() {
+    markSeen();
+    intro.classList.add('ti-out');
+    setTimeout(function () { intro.hidden = true; running = false; document.documentElement.style.overflow = ''; }, reduce ? 0 : 600);
+  }
+
+  btns.forEach(function (bt) {
+    bt.addEventListener('click', function () {
+      var k = bt.getAttribute('data-sys');
+      if (!sys || sys[k].t >= 0) return;
+      sys[k].t = performance.now();
+      bt.classList.add('on'); bt.setAttribute('aria-pressed', 'true');
+      intro.querySelector('.ti-d[data-sys="' + k + '"]').classList.add('on');
+      count++; lastTap = performance.now();
+      cap.textContent = captions[k] + ' (' + count + ' / 4)';
+    });
+  });
+  document.getElementById('ti-skip').addEventListener('click', close);
+  document.getElementById('ti-enter').addEventListener('click', close);
+  intro.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') close(); });
+  window.addEventListener('resize', function () { if (running) resize(); });
+  document.addEventListener('DOMContentLoaded', function () {
+    var rp = document.getElementById('ti-replay');
+    if (rp) rp.addEventListener('click', function () { window.scrollTo(0, 0); open(); });
+  });
+
+  if (!seen() && !location.hash) open();
+})();
+</script>
+
 <div style="font-family: Inter, system-ui, sans-serif; color: #e6f1fb; background: #050c18; min-height: 100vh">
 
 <header style="position: sticky; top: 0; z-index: 10; background: rgba(5, 12, 24, 0.88); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(56, 217, 255, 0.12)">
@@ -145,6 +455,7 @@ a{color:#38d9ff}a:hover{color:#8ae9ff}
 <footer style="padding: 32px 24px; border-top: 1px solid rgba(56, 217, 255, 0.1)">
 <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 14px; color: #8fb3cc">
 <span>© 2026 Trevion · Technology &amp; Engineering</span>
+<button type="button" class="ti-replay" id="ti-replay">▶ Replay the intro</button>
 <span>GIS · Geodesy · Electrical Engineering · IT &amp; Cybersecurity</span>
 </div>
 </footer>
